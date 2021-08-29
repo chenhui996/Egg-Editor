@@ -1,35 +1,16 @@
 <template>
-  <h1>egg-editor</h1>
-  <hello msg="hello world" />
-  <a-button type="primary">Primary</a-button>
-  <ul>
-    <li>开箱即用</li>
-    <li>typescript</li>
-    <li>Vue3</li>
-    <li>支持 tsx</li>
-    <li>eslint</li>
-    <li>简单易用可扩展</li>
-  </ul>
+  <template-detail></template-detail>
 </template>
 
 <script lang="ts">
 import {defineComponent} from 'vue'
-import Hello from './components/Hello'
+// import Home from './views/Home.vue'
+// import Editor from './views/Editor.vue'
+import TemplateDetail from './views/TemplateDetail.vue'
 export default defineComponent({
   name: 'App',
   components: {
-    Hello,
+    TemplateDetail,
   },
 })
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
