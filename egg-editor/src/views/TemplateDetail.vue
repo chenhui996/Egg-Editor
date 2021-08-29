@@ -1,6 +1,6 @@
 <template>
   <div class="work-detail-container">
-    <pre>{{route}}</pre>
+    <!-- <pre>{{route}}</pre> -->
     <a-row type="flex" justify="center">
       <a-col :span="8" class="cover-img">
         <img
