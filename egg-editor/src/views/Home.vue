@@ -7,6 +7,7 @@
 <script>
 import {defineComponent} from 'vue'
 import TemplateList from '../components/TemplateList.vue'
+// import {useRouter} from 'vue-router'
 const testData = [
   {
     id: 1,
@@ -50,6 +51,10 @@ export default defineComponent({
     TemplateList,
   },
   setup() {
+    // const router = useRouter()
+    // setTimeout(() => {
+    //   router.push({name: 'template', params: {id: 1}})
+    // }, 2000)
     return {
       testData,
     }
