@@ -1,5 +1,5 @@
 <template>
-  <h1>慕课乐高标准模版</h1>
+  <h1>egg-editor</h1>
   <hello msg="hello world" />
   <a-button type="primary">Primary</a-button>
   <ul>
