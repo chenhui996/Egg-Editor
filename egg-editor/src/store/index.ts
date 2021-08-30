@@ -75,6 +75,19 @@ const store = createStore<GlobalDataProps>({
     templates: testData,
     user: {isLogin: false},
   },
+  mutations: {
+    login(state) {
+      state.user = {...state.user, isLogin: true, userName: 'cain'}
+    },
+    logout(state) {
+      state.user = {isLogin: false}
+    },
+  },
+  getters: {
+      getTemplateById: (state) => (id: number) => {
+          return state.templates.find(t => t.id === id)
+      }
+  }
 })
 
 export default store
