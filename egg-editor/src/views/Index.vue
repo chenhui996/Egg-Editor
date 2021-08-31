@@ -43,6 +43,11 @@ export default defineComponent({
 </script>
 
 <style>
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .page-title {
   color: #fff;
 }
