@@ -1,30 +1,39 @@
 <template>
-  <component :is="tag" :style="styleProps" class="e-text-component">{{
-    text
-  }}</component>
+  <component
+    :is="tag"
+    :style="styleProps"
+    class="e-text-component"
+    @click="handleClick"
+    >{{ text }}</component
+  >
 </template>
 
 <script lang="ts">
-import {defineComponent, computed} from 'vue'
-import {pick} from 'lodash-es'
+import {defineComponent} from 'vue'
+import useComponentCommon from '../hooks/useComponentCommon'
+import {
+  transformToComponentProps,
+  textDefaultProps,
+  textStylePropNames,
+} from '../defaultProps'
+const defaultProps = transformToComponentProps(textDefaultProps)
 export default defineComponent({
   name: 'e-text',
   props: {
-    text: {
-      type: String,
-    },
-    fontSize: {
-      type: String,
-    },
     tag: {
       type: String,
       default: 'div',
     },
+    ...defaultProps,
   },
   setup(props) {
-    const styleProps = computed(() => pick(props, ['fontSize']))
+    const {styleProps, handleClick} = useComponentCommon(
+      props,
+      textStylePropNames,
+    )
     return {
       styleProps,
+      handleClick,
     }
   },
 })
@@ -42,5 +51,6 @@ button.e-text-component {
 .e-text-component {
   box-sizing: border-box;
   white-space: pre-wrap;
+  position: relative !important;
 }
 </style>
