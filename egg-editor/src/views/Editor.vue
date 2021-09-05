@@ -1,13 +1,25 @@
 <template>
-  <div class="editor" id="editor-layout-main">
+  <div class="editor-container">
     <a-layout>
-      <a-layout-sider width="300" style="background: yellow">
-        <div class="sidebar-container">组件列表</div>
+      <a-layout-sider width="300" style="background: #fff">
+        <div class="sidebar-container">
+          组件列表<components-list
+            :list="defaultTextTemplates"
+            @onItemClick="addItem"
+          ></components-list>
+        </div>
       </a-layout-sider>
       <a-layout style="padding: 0 24px 24px">
         <a-layout-content class="preview-container">
           <p>画布区域</p>
-          <div class="preview-list" id="canvas-area"></div>
+          <div class="preview-list" id="canvas-area">
+            <component
+              v-for="component in components"
+              v-bind="component.props"
+              :is="component.name"
+              :key="component.id"
+            />
+          </div>
         </a-layout-content>
       </a-layout>
       <a-layout-sider
@@ -21,23 +33,48 @@
   </div>
 </template>
 
-<script>
-import {defineComponent} from 'vue'
+<script lang="ts">
+import {computed, defineComponent} from 'vue'
+import {useStore} from 'vuex'
+import {GlobalDataProps} from '../store'
+import EText from '../components/EText.vue'
+import componentsList from '../components/ComponentsList.vue'
+import {defaultTextTemplates} from '../defaultTemplates'
+import ComponentsList from '../components/ComponentsList.vue'
+import {TextComponentProps} from '../defaultProps'
 
-export default defineComponent({})
+export default defineComponent({
+  components: {
+    EText,
+    ComponentsList,
+  },
+  setup() {
+    const store = useStore<GlobalDataProps>()
+    const components = computed(() => store.state.editor.components)
+    const addItem = (props: TextComponentProps) => {
+      store.commit('addComponent', props)
+    }
+    return {
+      components,
+      defaultTextTemplates,
+      componentsList,
+      addItem,
+    }
+  },
+})
 </script>
 
 <style>
-.preview-container {
+.editor-container .preview-container {
   padding: 24px;
   margin: 0;
-  min-height: 85vh !important;
+  min-height: 85vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
 }
-.preview-list {
+.editor-container .preview-list {
   padding: 0;
   margin: 0;
   min-width: 375px;
