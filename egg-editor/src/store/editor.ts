@@ -1,6 +1,7 @@
 import {Module} from 'vuex'
 import {v4 as uuidv4} from 'uuid'
 import {GlobalDataProps} from './index'
+import {TextComponentProps} from '../defaultProps'
 
 export interface EditorProps {
   // 供中间编辑器渲染的数组
@@ -12,7 +13,7 @@ export interface EditorProps {
 
 interface ComponentData {
   // 这个元素的属性，属性请详见下面
-  props: {[key: string]: unknown};
+  props: Partial<TextComponentProps>;
   // id, uuid v4 生成
   id: string;
   // 业务组件库的名称 e-test, e-image 等等
@@ -56,7 +57,7 @@ const editor: Module<EditorProps, GlobalDataProps> = {
     currentElement: '',
   },
   mutations: {
-    addComponent(state, props) {
+    addComponent(state, props: Partial<TextComponentProps>) {
       const newComponent: ComponentData = {
         id: uuidv4(),
         name: 'e-text',

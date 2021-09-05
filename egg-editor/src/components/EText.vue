@@ -16,6 +16,7 @@ import {
   textDefaultProps,
   textStylePropNames,
 } from '../defaultProps'
+// key value 的键值对
 const defaultProps = transformToComponentProps(textDefaultProps)
 export default defineComponent({
   name: 'e-text',
@@ -31,6 +32,7 @@ export default defineComponent({
       props,
       textStylePropNames,
     )
+    
     return {
       styleProps,
       handleClick,

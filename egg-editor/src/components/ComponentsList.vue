@@ -14,6 +14,7 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
 import EText from '../components/EText.vue'
+import { TextComponentProps } from '../defaultProps'
 export default defineComponent({
   name: 'components-list',
   props: {
@@ -27,7 +28,7 @@ export default defineComponent({
   },
   emits: ['on-item-click'],
   setup(props, context) {
-    const onItemClick = (data: any) => {
+    const onItemClick = (data: TextComponentProps) => {
       context.emit('on-item-click', data)
     }
     return {onItemClick}

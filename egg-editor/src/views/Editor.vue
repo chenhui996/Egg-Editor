@@ -41,6 +41,7 @@ import EText from '../components/EText.vue'
 import componentsList from '../components/ComponentsList.vue'
 import {defaultTextTemplates} from '../defaultTemplates'
 import ComponentsList from '../components/ComponentsList.vue'
+import {TextComponentProps} from '../defaultProps'
 
 export default defineComponent({
   components: {
@@ -50,7 +51,7 @@ export default defineComponent({
   setup() {
     const store = useStore<GlobalDataProps>()
     const components = computed(() => store.state.editor.components)
-    const addItem = (props: any) => {
+    const addItem = (props: TextComponentProps) => {
       store.commit('addComponent', props)
     }
     return {
