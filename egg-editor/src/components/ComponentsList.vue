@@ -13,25 +13,27 @@
 
 <script lang="ts">
 import {defineComponent} from 'vue'
-import EText from '../components/EText.vue'
-import { TextComponentProps } from '../defaultProps'
+import EText from './EText.vue'
+// import {TextComponentProps} from '../defaultProps'
 export default defineComponent({
-  name: 'components-list',
   props: {
     list: {
       type: Array,
       required: true,
     },
   },
+  emits: ['on-item-click'],
+  name: 'components-list',
   components: {
     EText,
   },
-  emits: ['on-item-click'],
   setup(props, context) {
-    const onItemClick = (data: TextComponentProps) => {
+    const onItemClick = (data: any) => {
       context.emit('on-item-click', data)
     }
-    return {onItemClick}
+    return {
+      onItemClick,
+    }
   },
 })
 </script>
