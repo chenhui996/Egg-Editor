@@ -8,6 +8,7 @@ export interface PropToForm {
   text?: string;
   options?: {text: string; value: any}[];
   initalTransform?: (value: any) => any;
+  valueProp?: string;
 }
 
 export type PropsToForms = {
