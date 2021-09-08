@@ -28,6 +28,9 @@ export const testComponents: ComponentData[] = [
       text: 'hello',
       fontSize: '20px',
       color: 'red',
+      lineHeight: '1',
+      textAlign: 'left',
+      fontFamily: '',
     },
   },
   {
@@ -37,6 +40,9 @@ export const testComponents: ComponentData[] = [
       text: 'hello2',
       fontSize: '10px',
       fontWeight: 'bold',
+      lineHeight: '2',
+      textAlign: 'center',
+      fontFamily: '',
     },
   },
   {
@@ -47,6 +53,9 @@ export const testComponents: ComponentData[] = [
       fontSize: '15px',
       actionType: 'url',
       url: 'http://www.baidu.com',
+      lineHeight: '3',
+      textAlign: 'right',
+      fontFamily: '',
     },
   },
 ]
