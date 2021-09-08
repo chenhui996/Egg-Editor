@@ -31,6 +31,10 @@
         class="settings-panel"
       >
         组件属性
+        <props-table
+          v-if="currentElement && currentElement.props"
+          :props="currentElement.props"
+        ></props-table>
         <pre>{{ currentElement && currentElement.props }}</pre>
       </a-layout-sider>
     </a-layout>
@@ -39,14 +43,18 @@
 
 <script lang="ts">
 import {computed, defineComponent} from 'vue'
+// store
 import {useStore} from 'vuex'
 import {GlobalDataProps} from '../store'
+// component
 import EText from '../components/EText.vue'
 import componentsList from '../components/ComponentsList.vue'
 import EditWrapper from '../components/EditWrapper.vue'
+import ComponentsList from '../components/ComponentsList.vue'
+import PropsTable from '../components/PropsTable.vue'
+// props
 import {defaultTextTemplates} from '../defaultTemplates'
 import {ComponentData} from '../store/editor'
-import ComponentsList from '../components/ComponentsList.vue'
 import {TextComponentProps} from '../defaultProps'
 
 export default defineComponent({
@@ -54,6 +62,7 @@ export default defineComponent({
     EText,
     ComponentsList,
     EditWrapper,
+    PropsTable,
   },
   setup() {
     const store = useStore<GlobalDataProps>()
@@ -61,7 +70,7 @@ export default defineComponent({
     const currentElement = computed<ComponentData | null>(
       () => store.getters.getCurrentElement,
     )
-    const addItem = (props: TextComponentProps) => {
+    const addItem = (props: Partial<TextComponentProps>) => {
       store.commit('addComponent', props)
     }
     const setActive = (id: string) => {

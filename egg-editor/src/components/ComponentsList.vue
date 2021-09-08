@@ -12,13 +12,13 @@
 </template>
 
 <script lang="ts">
-import {defineComponent} from 'vue'
+import {defineComponent, PropType} from 'vue'
 import EText from './EText.vue'
-// import {TextComponentProps} from '../defaultProps'
+import {TextComponentProps} from '../defaultProps'
 export default defineComponent({
   props: {
     list: {
-      type: Array,
+      type: Array as PropType<TextComponentProps[]>,
       required: true,
     },
   },
@@ -28,7 +28,9 @@ export default defineComponent({
     EText,
   },
   setup(props, context) {
-    const onItemClick = (data: any) => {
+    const onItemClick = (data: Partial<TextComponentProps>) => {
+      console.log(data)
+
       context.emit('on-item-click', data)
     }
     return {
