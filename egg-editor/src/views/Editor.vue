@@ -13,21 +13,30 @@
         <a-layout-content class="preview-container">
           <p>画布区域</p>
           <div class="preview-list" id="canvas-area">
-            <component
+            <edit-wrapper
               v-for="component in components"
-              v-bind="component.props"
-              :is="component.name"
               :key="component.id"
-            />
+              :id="component.id"
+              @setActive="setActive"
+              :active="component.id === (currentElement && currentElement.id)"
+            >
+              <component v-bind="component.props" :is="component.name" />
+            </edit-wrapper>
           </div>
         </a-layout-content>
       </a-layout>
       <a-layout-sider
         width="300"
-        style="background: purple"
+        style="background: #fff"
         class="settings-panel"
       >
         组件属性
+        <props-table
+          v-if="currentElement && currentElement.props"
+          :props="currentElement.props"
+          @change="handleChange"
+        ></props-table>
+        <pre>{{ currentElement && currentElement.props }}</pre>
       </a-layout-sider>
     </a-layout>
   </div>
@@ -35,30 +44,51 @@
 
 <script lang="ts">
 import {computed, defineComponent} from 'vue'
+// store
 import {useStore} from 'vuex'
 import {GlobalDataProps} from '../store'
+// component
 import EText from '../components/EText.vue'
 import componentsList from '../components/ComponentsList.vue'
-import {defaultTextTemplates} from '../defaultTemplates'
+import EditWrapper from '../components/EditWrapper.vue'
 import ComponentsList from '../components/ComponentsList.vue'
+import PropsTable from '../components/PropsTable.vue'
+// props
+import {defaultTextTemplates} from '../defaultTemplates'
+import {ComponentData} from '../store/editor'
 import {TextComponentProps} from '../defaultProps'
 
 export default defineComponent({
   components: {
     EText,
     ComponentsList,
+    EditWrapper,
+    PropsTable,
   },
   setup() {
     const store = useStore<GlobalDataProps>()
     const components = computed(() => store.state.editor.components)
-    const addItem = (props: TextComponentProps) => {
+    const currentElement = computed<ComponentData | null>(
+      () => store.getters.getCurrentElement,
+    )
+    const addItem = (props: Partial<TextComponentProps>) => {
       store.commit('addComponent', props)
+    }
+    const setActive = (id: string) => {
+      store.commit('setActive', id)
+    }
+    const handleChange = (e: any) => {
+      // console.log('event', e)
+      store.commit('updateComponent', e)
     }
     return {
       components,
       defaultTextTemplates,
       componentsList,
       addItem,
+      setActive,
+      currentElement,
+      handleChange,
     }
   },
 })

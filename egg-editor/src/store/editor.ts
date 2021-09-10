@@ -11,7 +11,7 @@ export interface EditorProps {
   // 当然最后保存的时候还是有一些项目信息，这里并没有写出，等做到的时候再补充
 }
 
-interface ComponentData {
+export interface ComponentData {
   // 这个元素的属性，属性请详见下面
   props: Partial<TextComponentProps>;
   // id, uuid v4 生成
@@ -28,6 +28,9 @@ export const testComponents: ComponentData[] = [
       text: 'hello',
       fontSize: '20px',
       color: 'red',
+      lineHeight: '1',
+      textAlign: 'left',
+      fontFamily: '',
     },
   },
   {
@@ -37,6 +40,9 @@ export const testComponents: ComponentData[] = [
       text: 'hello2',
       fontSize: '10px',
       fontWeight: 'bold',
+      lineHeight: '2',
+      textAlign: 'center',
+      fontFamily: '',
     },
   },
   {
@@ -47,6 +53,9 @@ export const testComponents: ComponentData[] = [
       fontSize: '15px',
       actionType: 'url',
       url: 'http://www.baidu.com',
+      lineHeight: '3',
+      textAlign: 'right',
+      fontFamily: '',
     },
   },
 ]
@@ -64,6 +73,24 @@ const editor: Module<EditorProps, GlobalDataProps> = {
         props,
       }
       state.components.push(newComponent)
+    },
+    setActive(state, currentId: string) {
+      state.currentElement = currentId
+    },
+    updateComponent(state, {key, value}) {
+      const updateComponent = state.components.find(
+        (component) => component.id === state.currentElement,
+      )
+      if (updateComponent) {
+        updateComponent.props[key as keyof TextComponentProps] = value
+      }
+    },
+  },
+  getters: {
+    getCurrentElement: (state) => {
+      return state.components.find(
+        (component) => component.id === state.currentElement,
+      )
     },
   },
 }
