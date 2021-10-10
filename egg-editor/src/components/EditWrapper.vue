@@ -1,13 +1,22 @@
 <template>
   <div class="edit-wrapper" @click="onItemClick(id)" :class="{active: active}">
     <slot></slot>
-    <div v-if="active" class="close-item" @click="onItemDeleteClick(id)">-</div>
+    <div v-if="active" class="close-item">
+      <delete-filled
+        class="icon-delete"
+        @click="onItemDeleteClick(id)"
+      ></delete-filled>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import {defineComponent} from 'vue'
+import {DeleteFilled} from '@ant-design/icons-vue'
 export default defineComponent({
+  components: {
+    DeleteFilled,
+  },
   props: {
     id: {
       type: String,
@@ -53,21 +62,24 @@ export default defineComponent({
   z-index: 1500;
 }
 .close-item {
-  width: 14px;
-  height: 14px;
   z-index: 100;
-  background-color: #9d001d;
+  background-color: #d4eafe;
+  border: 1px solid #1890ff;
   position: absolute;
   right: 3px;
   top: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 100%;
-  color: #fff;
+  padding: 4px 8px;
+  color: #000;
+}
+
+.icon-delete {
+  font-size: 12px;
   transition: all 0.3s;
 }
-.close-item:hover {
-  background-color: #e3193e;
+.icon-delete:hover {
+  color: #ff0000;
 }
 </style>

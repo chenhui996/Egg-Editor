@@ -59,7 +59,6 @@ import PropsTable from '../components/PropsTable.vue'
 import {defaultTextTemplates} from '../defaultTemplates'
 import {ComponentData} from '../store/editor'
 import {TextComponentProps} from '../defaultProps'
-
 export default defineComponent({
   components: {
     EText,

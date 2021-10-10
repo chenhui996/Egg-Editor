@@ -8,7 +8,7 @@ const RenderVnode = defineComponent({
     },
   },
   render() {
-    console.log('this.vNode', this.vNode)
+    // console.log('this.vNode', this.vNode)
 
     return this.vNode
   },
