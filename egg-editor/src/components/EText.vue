@@ -3,7 +3,7 @@
     :is="tag"
     :style="styleProps"
     class="e-text-component"
-    @click="handleClick"
+    @click="handleClick(true)"
     >{{ text }}</component
   >
 </template>
