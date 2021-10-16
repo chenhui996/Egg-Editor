@@ -72,15 +72,30 @@ const editor: Module<EditorProps, GlobalDataProps> = {
         name: 'e-text',
         props,
       }
+      console.log('props', props)
+
       state.components.push(newComponent)
     },
+
     setActive(state, currentId: string) {
       state.currentElement = currentId
     },
+
+    onDelete(state, currentId: string) {
+      // console.log('state.components', state.components)
+      const newComponents = state.components.filter(
+        (component) => component.id !== currentId,
+      )
+      state.components = newComponents
+    },
+
     updateComponent(state, {key, value}) {
       const updateComponent = state.components.find(
         (component) => component.id === state.currentElement,
       )
+
+      // console.log('updateComponent', updateComponent)
+
       if (updateComponent) {
         updateComponent.props[key as keyof TextComponentProps] = value
       }

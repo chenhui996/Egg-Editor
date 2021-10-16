@@ -28,8 +28,9 @@ export default defineComponent({
     EText,
   },
   setup(props, context) {
+
     const onItemClick = (data: Partial<TextComponentProps>) => {
-      console.log(data)
+      console.log('data', data)
 
       context.emit('on-item-click', data)
     }

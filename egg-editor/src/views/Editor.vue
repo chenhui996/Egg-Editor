@@ -18,6 +18,7 @@
               :key="component.id"
               :id="component.id"
               @setActive="setActive"
+              @onDelete="onDelete"
               :active="component.id === (currentElement && currentElement.id)"
             >
               <component v-bind="component.props" :is="component.name" />
@@ -53,11 +54,11 @@ import componentsList from '../components/ComponentsList.vue'
 import EditWrapper from '../components/EditWrapper.vue'
 import ComponentsList from '../components/ComponentsList.vue'
 import PropsTable from '../components/PropsTable.vue'
+// import PropsTable from '../components/jsx-func-test/PropsTable'
 // props
 import {defaultTextTemplates} from '../defaultTemplates'
 import {ComponentData} from '../store/editor'
 import {TextComponentProps} from '../defaultProps'
-
 export default defineComponent({
   components: {
     EText,
@@ -77,6 +78,9 @@ export default defineComponent({
     const setActive = (id: string) => {
       store.commit('setActive', id)
     }
+    const onDelete = (id: string) => {
+      store.commit('onDelete', id)
+    }
     const handleChange = (e: any) => {
       // console.log('event', e)
       store.commit('updateComponent', e)
@@ -87,6 +91,7 @@ export default defineComponent({
       componentsList,
       addItem,
       setActive,
+      onDelete,
       currentElement,
       handleChange,
     }
