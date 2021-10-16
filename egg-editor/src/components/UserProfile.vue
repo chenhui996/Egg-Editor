@@ -4,7 +4,7 @@
     v-if="!user.isLogin"
     class="user-profile-component"
     @click="login"
-    >登陆</a-button
+    >登录</a-button
   >
   <div v-else>
     <a-dropdown-button class="user-profile-component">
