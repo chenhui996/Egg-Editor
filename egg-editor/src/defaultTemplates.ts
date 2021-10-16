@@ -58,7 +58,7 @@ export const defaultTextTemplates = [
     tag: 'p',
     textAlign: 'left',
     borderWidth: '0px',
-    borderColor: '#1890ff',
+    borderColor: 'rgba(255,255,255,0)',
     borderStyle: 'solid',
     borderRadius: '2px',
     opacity: '1',
