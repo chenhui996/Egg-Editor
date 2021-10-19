@@ -94,8 +94,6 @@ const editor: Module<EditorProps, GlobalDataProps> = {
         (component) => component.id === state.currentElement,
       )
 
-      // console.log('updateComponent', updateComponent)
-
       if (updateComponent) {
         updateComponent.props[key as keyof TextComponentProps] = value
       }
