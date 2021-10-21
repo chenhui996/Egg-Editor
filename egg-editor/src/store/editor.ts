@@ -72,7 +72,7 @@ const editor: Module<EditorProps, GlobalDataProps> = {
         name: 'e-text',
         props,
       }
-      console.log('props', props)
+      // console.log('props', props)
 
       state.components.push(newComponent)
     },

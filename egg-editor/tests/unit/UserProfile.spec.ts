@@ -55,7 +55,7 @@ describe('UserProfile component', () => {
   })
 
   it('should render login button when login is false', async () => {
-    console.log(wrapper.html())
+    // console.log(wrapper.html())
     expect(wrapper.get('div').text()).toBe('登录')
     await wrapper.get('div').trigger('click')
     expect(message.success).toHaveBeenCalled()
@@ -69,7 +69,7 @@ describe('UserProfile component', () => {
         userName: 'cain',
       },
     })
-    console.log(wrapper.html())
+    // console.log(wrapper.html())
     expect(wrapper.get('.user-profile-component').html()).toContain('cain')
     expect(wrapper.find('.user-profile-dropdown').exists()).toBeTruthy()
   })
