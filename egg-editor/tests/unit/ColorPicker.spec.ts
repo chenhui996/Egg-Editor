@@ -1,4 +1,5 @@
 import {mount, VueWrapper} from '@vue/test-utils'
+import rgbHex from 'rgb-hex'
 import ColorPicker from '@/components/ColorPicker.vue'
 const defaultColors = [
   '#ffffff',
@@ -25,22 +26,23 @@ describe('ColorPicker', () => {
 
   it('should render the correct interface', () => {
     // <div><input></div>
-    // <ul class="pick-color-list">
+    // <ul class="picked-color-list">
     // <li class="item-0" or class="transparent-back">
     // <div></div>
     // </li></ul>
+
     // 测试左侧是否为 input, 类型和值是否正确
     expect(wrapper.find('input').exists()).toBeTruthy()
     const input = wrapper.get('input').element
     expect(input.type).toBe('color')
     expect(input.value).toBe('#ffffff')
     // 测试右侧是否有颜色的列表
-    expect(wrapper.findAll('.pick-color-list li').length).toBe(
+    expect(wrapper.findAll('.picked-color-list li').length).toBe(
       defaultColors.length,
     )
     // 检查一个元素的 css backgroundColor 属性是否相等对应的颜色
     const firstItem = wrapper.get('li:first-child div').element as HTMLElement
-    expect(firstItem.style.backgroundColor).toBe(defaultColors[0])
+    expect('#' + rgbHex(firstItem.style.backgroundColor)).toBe(defaultColors[0])
     // 测试最后一个元素是否有特殊的类名
     const lastItem = wrapper.get('li:last-child div').element as HTMLElement
     expect(lastItem.classList.contains('transparent-back')).toBeTruthy()
@@ -51,14 +53,16 @@ describe('ColorPicker', () => {
     const input = wrapper.get('input')
     await input.setValue(blackHex)
     expect(wrapper.emitted()).toHaveProperty('change')
-    const events = wrapper.emitted('change') as string[]
+    const events = wrapper.emitted('change') as unknown[]
     expect(events[0]).toEqual([blackHex])
   })
   it('should send the correct event when clicking the color list button', async () => {
     // 测试点击右侧颜色列表以后，是否发送对应的值
     const firstItem = wrapper.get('li:first-child div')
     firstItem.trigger('click')
-    const events = wrapper.emitted('change') as string[]
-    expect(events[1]).toEqual([defaultColors[0]])
+    const events = wrapper.emitted('change') as unknown[]
+    // console.log('events', events[2])
+    
+    expect(events[2]).toEqual([defaultColors[0]])
   })
 })
