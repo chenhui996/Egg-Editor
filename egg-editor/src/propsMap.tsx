@@ -154,4 +154,8 @@ export const mapPropsToForms: PropsToForms = {
     initalTransform: (v: string) => parseFloat(v) * 100,
     afterTransform: (e: number) => (e / 100).toString(),
   },
+  color: {
+    text: '字体颜色：',
+    component: 'color-picker',
+  },
 }
