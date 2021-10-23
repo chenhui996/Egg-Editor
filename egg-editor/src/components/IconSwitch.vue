@@ -1,7 +1,6 @@
 <template>
   <div class="icon-template" @click.prevent="handleClick">
-    <a-tooltip>
-      <template v-slot:title>{{ tip }}</template>
+    <a-tooltip placement="top" :title="tip">
       <a-button :type="checked ? 'primary' : 'default'">
         <template v-slot:icon><component :is="iconName" /></template>
       </a-button>

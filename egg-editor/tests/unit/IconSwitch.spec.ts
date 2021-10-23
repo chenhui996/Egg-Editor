@@ -3,16 +3,12 @@ import IconSwitch from '@/components/IconSwitch.vue'
 let wrapper: VueWrapper<any>
 
 const mockComponent = {
-  template: '<button><slot name="icon"><slot></slot></slot></button>',
-}
-
-const mockComponent3 = {
-  template: '<div><slot name="title"></slot><slot></slot></div>',
+  template: '<div><slot>B</slot></div>',
 }
 
 const globalComponents = {
   'a-button': mockComponent,
-  'a-tooltip': mockComponent3,
+  'a-tooltip': mockComponent,
 }
 
 describe('ColorPicker', () => {
@@ -29,25 +25,27 @@ describe('ColorPicker', () => {
     })
   })
 
-  it('should render the correct interface', () => {
-    //  <div class="icon-template" @click.prevent="handleClick">
-    //    <a-tooltip>
-    //      <template v-slot:title>{{ tip }}</template>
-    //      <a-button :type="checked ? 'primary' : 'default'">
-    //        <template v-slot:icon><component :is="iconName" /></template>
-    //      </a-button>
-    //    </a-tooltip>
-    //  </div>
-    // console.log(wrapper.html())
+  it('should render the correct title', () => {
+    const tooltip = wrapper.findAll('.icon-template>div')[0]
+    // 判断传入的title
+    expect(tooltip.attributes('title')).toBe('粗体')
+  })
+  it('test title position', () => {
+    const tooltip = wrapper.findAll('.icon-template>div')[0]
+    expect(tooltip.attributes('placement')).toBe('top')
+  })
+  it('test click active', () => {
+    expect(wrapper.props('checked')).toBeFalsy()
     const item = wrapper.find('.icon-template')
     item.trigger('click')
     const events = wrapper.emitted('change') as unknown[]
     expect(events[0]).toEqual([true])
   })
-  it('should render the correct interface', () => {
+  it('test click not active', async () => {
+    await wrapper.setProps({checked: true})
     const item = wrapper.find('.icon-template')
-    item.trigger('click')
+    await item.trigger('click')
     const events = wrapper.emitted('change') as unknown[]
-    expect(events[1]).toEqual([true])
+    expect(events[1]).toEqual([false])
   })
 })
