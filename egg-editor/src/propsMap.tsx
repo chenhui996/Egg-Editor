@@ -77,12 +77,35 @@ export const mapPropsToForms: PropsToForms = {
     ],
     afterTransform: (e: any) => e.target.value,
   },
+  // font
   fontFamily: {
     component: 'a-select',
     subComponent: 'a-select-option',
     text: '字体：',
     options: [{value: '', text: '无'}, ...fontFamilyOptions],
   },
+  fontWeight: {
+    component: 'icon-switch',
+    initalTransform: (v: string) => v === 'bold',
+    afterTransform: (e: boolean) => (e ? 'bold' : 'normal'),
+    valueProp: 'checked',
+    extraProps: {iconName: 'BoldOutlined', tip: '加粗'},
+  },
+  fontStyle: {
+    component: 'icon-switch',
+    initalTransform: (v: string) => v === 'italic',
+    afterTransform: (e: boolean) => (e ? 'italic' : 'normal'),
+    valueProp: 'checked',
+    extraProps: {iconName: 'ItalicOutlined', tip: '斜体'},
+  },
+  textDecoration: {
+    component: 'icon-switch',
+    initalTransform: (v: string) => v === 'underline',
+    afterTransform: (e: boolean) => (e ? 'underline' : 'none'),
+    valueProp: 'checked',
+    extraProps: {iconName: 'UnderlineOutlined', tip: '下划线'},
+  },
+
   // 内边距
   paddingLeft: {
     text: '左内边距：',
