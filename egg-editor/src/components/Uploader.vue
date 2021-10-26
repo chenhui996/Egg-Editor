@@ -38,7 +38,6 @@ export default defineComponent({
 
     // axios 请求
     const handleFileChange = (e: Event) => {
-      console.log('in')
       const target = e.target as HTMLInputElement
       const files = target.files // 类数组
       if (files) {
@@ -56,7 +55,7 @@ export default defineComponent({
             },
           })
           .then((resp) => {
-            console.log('resp.data', resp.data)
+            // console.log('resp.data', resp.data)
             // 联动 fileStatus -> change status -> success
             fileStatus.value = 'success'
           })
