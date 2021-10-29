@@ -27,6 +27,7 @@ describe('Uploader Component', () => {
     mockedAxios.post.mockResolvedValueOnce({status: 'success'}) // mock post -> 发生 post - 基于此定义调用
     const fileInput = wrapper.get('input').element as HTMLInputElement
     const files = [testFile] as any
+
     // 由于 unit test 无法模拟 交互的过程 -> 故 input 上传文件操作 -> 直接将文件塞入 input 的 files 属性中。
     Object.defineProperty(fileInput, 'files', {
       value: files,
@@ -36,14 +37,15 @@ describe('Uploader Component', () => {
     expect(mockedAxios.post).toHaveBeenCalledTimes(1)
     expect(wrapper.get('button span').text()).toBe('正在上传')
     // button 为 disabled
-    expect(wrapper.get('button span').attributes('disabled')).toBeTruthy()
+    expect(wrapper.get('button').attributes()).toHaveProperty('disabled')
 
     // 列表长度修改，并且有正确的 class
     const firstItem = wrapper.get('li:first-child')
-    expect(firstItem.classes()).toContain('uploading')
+    expect(firstItem.classes()).toContain('upload-loading')
 
     await flushPromises()
-    expect(wrapper.get('button span').text()).toBe('上传成功')
+    expect(wrapper.get('button span').text()).toBe('点击上传')
+
     // 有正确的 class，并且文件名称相对应
     expect(firstItem.classes()).toContain('upload-success')
     expect(wrapper.get('.filename').text()).toBe(testFile.name)
@@ -54,8 +56,8 @@ describe('Uploader Component', () => {
     expect(mockedAxios.post).toHaveBeenCalledTimes(2)
     expect(wrapper.get('button span').text()).toBe('正在上传')
     await flushPromises()
-    expect(wrapper.get('button span').text()).toBe('上传失败')
-    
+    expect(wrapper.get('button span').text()).toBe('点击上传')
+
     // 列表长度增加，并且列表的最后一项有正确的 class 名
     expect(wrapper.findAll('li').length).toBe(2)
     const lastItem = wrapper.get('li:last-child')
