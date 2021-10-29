@@ -1,5 +1,8 @@
 <template>
   <div class="homepage-caontaner">
+    <uploader
+      action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+    ></uploader>
     <a-layout :style="{background: '#fff'}">
       <!-- header -->
       <a-layout-header class="header">
@@ -22,23 +25,25 @@
 
 <script lang="ts">
 import {computed, defineComponent} from 'vue'
-import { useStore } from 'vuex'
+import {useStore} from 'vuex'
 import UserProfile from '../components/UserProfile.vue'
-import { GlobalDataProps } from '../store/index'
+import {GlobalDataProps} from '../store/index'
+import Uploader from '../components/Uploader.vue'
 export default defineComponent({
   name: 'Index',
   components: {
-    UserProfile
+    UserProfile,
+    Uploader,
   },
-  setup (){
-    const store= useStore<GlobalDataProps>()
+  setup() {
+    const store = useStore<GlobalDataProps>()
     const user = computed(() => store.state.user)
-
     return {
       UserProfile,
-      user
+      Uploader,
+      user,
     }
-  }
+  },
 })
 </script>
 

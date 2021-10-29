@@ -61,8 +61,6 @@ describe('ColorPicker', () => {
     const firstItem = wrapper.get('li:first-child div')
     firstItem.trigger('click')
     const events = wrapper.emitted('change') as unknown[]
-    // console.log('events', events[2])
-    
-    expect(events[2]).toEqual([defaultColors[0]])
+    expect(events[1]).toEqual([defaultColors[0]])
   })
 })

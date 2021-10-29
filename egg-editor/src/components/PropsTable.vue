@@ -31,6 +31,9 @@ import {TextComponentProps} from '../defaultProps'
 import {reduce} from 'lodash'
 import {mapPropsToForms} from '../propsMap'
 import RenderVnode from './RenderVnode'
+import ColorPicker from './ColorPicker.vue'
+import IconSwitch from './IconSwitch.vue'
+
 interface FormProps {
   component: string;
   subComponent?: string;
@@ -52,6 +55,8 @@ export default defineComponent({
   },
   components: {
     RenderVnode,
+    ColorPicker,
+    IconSwitch,
   },
   emits: ['change'],
   setup(props, context) {
@@ -68,8 +73,10 @@ export default defineComponent({
               initalTransform,
               afterTransform,
             } = item
+
             const newItem: FormProps = {
               ...item,
+              // 渲染到页面上的转换 - initalTransform
               value: initalTransform ? initalTransform(value) : value,
               valueProp,
               eventName,
@@ -77,11 +84,13 @@ export default defineComponent({
                 [eventName]: (e: any) => {
                   context.emit('change', {
                     key,
+                    // 更新到数据层的转换 - afterTransform
                     value: afterTransform ? afterTransform(e) : e,
                   })
                 },
               },
             }
+
             result[newKey] = newItem
           }
           return result

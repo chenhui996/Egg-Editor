@@ -62,5 +62,8 @@ export const defaultTextTemplates = [
     borderStyle: 'solid',
     borderRadius: '2px',
     opacity: '1',
+    fontWeight: 'normal',
+    fontStyle: 'normal',
+    textDecoration: 'none',
   },
 ]
