@@ -10,14 +10,20 @@
       :style="{display: 'none'}"
       @change="handleFileChange"
     />
-    <ul>
+    <ul class="upload-list">
       <li
         :class="`uploaded-file upload-${file.status}`"
         v-for="file in uploadedFiles"
         :key="file.uid"
       >
+        <span v-if="file.status === 'loading'" class="file-icon"
+          ><LoadingOutlined
+        /></span>
+        <span v-else class="file-icon"><FileOutlined /></span>
         <span class="filename">{{ file.name }}</span>
-        <button class="delete-icon" @click="removeFile(file.uid)">Del</button>
+        <button class="delete-icon" @click="removeFile(file.uid)">
+          <DeleteOutlined />
+        </button>
       </li>
     </ul>
   </div>
@@ -27,6 +33,11 @@
 import {computed, defineComponent, reactive, ref} from 'vue'
 import axios from 'axios'
 import {v4 as uuidv4} from 'uuid'
+import {
+  DeleteOutlined,
+  LoadingOutlined,
+  FileOutlined,
+} from '@ant-design/icons-vue'
 
 type UploadStatus = 'ready' | 'loading' | 'success' | 'error'
 
@@ -39,6 +50,11 @@ export interface UploadFile {
 }
 
 export default defineComponent({
+  components: {
+    DeleteOutlined,
+    LoadingOutlined,
+    FileOutlined,
+  },
   props: {
     action: {
       type: String,
@@ -93,7 +109,7 @@ export default defineComponent({
             fileObj.status = 'success'
           })
           .catch((error) => {
-            console.log(error)
+            // console.log(error)
             // 联动 fileStatus -> change status -> error
             fileObj.status = 'error'
           })
@@ -117,14 +133,65 @@ export default defineComponent({
   },
 })
 </script>
-<style>
-.upload-loading {
-  color: yellow;
+<style lang="scss">
+.upload-list {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
 }
-.upload-success {
-  color: green;
-}
-.upload-error {
-  color: red;
+.upload-list li {
+  transition: all 0.5s cubic-bezier(0.55, 0, 0.1, 1);
+  font-size: 14px;
+  line-height: 1.8;
+  margin-top: 5px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  min-width: 200px;
+  position: relative;
+  &:first-child {
+    margin-top: 10px;
+  }
+  .file-icon {
+    svg {
+      margin-right: 5px;
+      color: rgba(0, 0, 0, 0.45);
+    }
+  }
+  .filename {
+    margin-left: 5px;
+    margin-right: 40px;
+  }
+  &.upload-error {
+    color: #f5222d;
+    svg {
+      color: #f5222d;
+    }
+  }
+  .file-status {
+    display: block;
+    position: absolute;
+    right: 5px;
+    top: 0;
+    line-height: inherit;
+  }
+  .delete-icon {
+    display: none;
+    position: absolute;
+    right: 7px;
+    top: 0;
+    line-height: inherit;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+  }
+  &:hover {
+    background-color: #efefef;
+    .file-status {
+      display: none;
+    }
+    .delete-icon {
+      display: block;
+    }
+  }
 }
 </style>
