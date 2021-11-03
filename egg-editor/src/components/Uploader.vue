@@ -1,9 +1,21 @@
 <template>
   <div class="file-upload">
-    <button @click="triggerUpload" :disabled="isUploading">
-      <span v-if="isUploading">正在上传</span>
-      <span v-else>点击上传</span>
-    </button>
+    <div class="upload-area" @click="triggerUpload">
+      <slot v-if="isUploading" name="loading">
+        <button disabled>正在上传</button>
+      </slot>
+      <slot
+        v-else-if="lastFileData && lastFileData.loaded"
+        name="uploaded"
+        :uploadedData="lastFileData.data"
+      >
+        <button>点击上传</button>
+      </slot>
+      <slot v-else name="default">
+        <button>点击上传</button>
+      </slot>
+    </div>
+
     <input
       ref="fileInput"
       type="file"
@@ -33,6 +45,7 @@
 import {computed, defineComponent, reactive, ref} from 'vue'
 import axios from 'axios'
 import {v4 as uuidv4} from 'uuid'
+import {last} from 'lodash-es'
 import {
   DeleteOutlined,
   LoadingOutlined,
@@ -47,6 +60,7 @@ export interface UploadFile {
   name: string;
   status: UploadStatus;
   raw: File;
+  resp?: any;
 }
 
 export default defineComponent({
@@ -66,6 +80,16 @@ export default defineComponent({
     const uploadedFiles = ref<UploadFile[]>([])
     const isUploading = computed(() => {
       return uploadedFiles.value.some((file) => file.status === 'loading')
+    })
+    const lastFileData = computed(() => {
+      const lastFile = last(uploadedFiles.value)
+      if (lastFile) {
+        return {
+          loaded: lastFile.status === 'success',
+          data: lastFile.resp,
+        }
+      }
+      return false
     })
     const triggerUpload = () => {
       if (fileInput.value) {
@@ -104,9 +128,10 @@ export default defineComponent({
             },
           })
           .then((resp) => {
-            // console.log('resp.data', resp.data)
+            console.log('resp.data', resp.data)
             // 联动 fileStatus -> change status -> success
             fileObj.status = 'success'
+            fileObj.resp = resp.data
           })
           .catch((error) => {
             // console.log(error)
@@ -121,7 +146,6 @@ export default defineComponent({
       }
     }
 
-    // 常见的
     return {
       fileInput,
       triggerUpload,
@@ -129,6 +153,7 @@ export default defineComponent({
       handleFileChange,
       uploadedFiles,
       removeFile,
+      lastFileData,
     }
   },
 })
