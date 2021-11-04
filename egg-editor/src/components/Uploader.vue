@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import {computed, defineComponent, reactive, ref} from 'vue'
+import {computed, defineComponent, PropType, reactive, ref} from 'vue'
 import axios from 'axios'
 import {v4 as uuidv4} from 'uuid'
 import {last} from 'lodash-es'
@@ -53,6 +53,7 @@ import {
 } from '@ant-design/icons-vue'
 
 type UploadStatus = 'ready' | 'loading' | 'success' | 'error'
+type CheckUpload = (file: File) => boolean | Promise<File>
 
 export interface UploadFile {
   uid: string;
@@ -73,6 +74,9 @@ export default defineComponent({
     action: {
       type: String,
       required: true,
+    },
+    beforeUpload: {
+      type: Function as PropType<CheckUpload>,
     },
   },
   setup(props) {
@@ -103,46 +107,71 @@ export default defineComponent({
       )
     }
 
+    const postFile = (uploadedFile: File) => {
+      const formData = new FormData() // 默认文件实例
+      // 将内容塞进去
+      formData.append(uploadedFile.name, uploadedFile)
+      const fileObj = reactive<UploadFile>({
+        uid: uuidv4(),
+        size: uploadedFile.size,
+        name: uploadedFile.name,
+        status: 'loading',
+        raw: uploadedFile,
+      })
+      uploadedFiles.value.push(fileObj)
+      // 发送 axios 请求
+      axios
+        .post(props.action, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data', // 设置 axios 请求头，告诉后端 -> 咱发送的是文件
+          },
+        })
+        .then((resp) => {
+          console.log('resp.data', resp.data)
+          // 联动 fileStatus -> change status -> success
+          fileObj.status = 'success'
+          fileObj.resp = resp.data
+        })
+        .catch((error) => {
+          // console.log(error)
+          // 联动 fileStatus -> change status -> error
+          fileObj.status = 'error'
+        })
+        .finally(() => {
+          if (fileInput.value) {
+            fileInput.value.value = ''
+          }
+        })
+    }
+
     // axios 请求
     const handleFileChange = (e: Event) => {
       const target = e.target as HTMLInputElement
       const files = target.files // 类数组
       if (files) {
         const uploadedFile = files[0]
-        const formData = new FormData() // 默认文件实例
-        // 将内容塞进去
-        formData.append(uploadedFile.name, uploadedFile)
-        const fileObj = reactive<UploadFile>({
-          uid: uuidv4(),
-          size: uploadedFile.size,
-          name: uploadedFile.name,
-          status: 'loading',
-          raw: uploadedFile,
-        })
-        uploadedFiles.value.push(fileObj)
-        // 发送 axios 请求
-        axios
-          .post(props.action, formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data', // 设置 axios 请求头，告诉后端 -> 咱发送的是文件
-            },
-          })
-          .then((resp) => {
-            console.log('resp.data', resp.data)
-            // 联动 fileStatus -> change status -> success
-            fileObj.status = 'success'
-            fileObj.resp = resp.data
-          })
-          .catch((error) => {
-            // console.log(error)
-            // 联动 fileStatus -> change status -> error
-            fileObj.status = 'error'
-          })
-          .finally(() => {
-            if (fileInput.value) {
-              fileInput.value.value = ''
-            }
-          })
+        if (props.beforeUpload) {
+          const result = props.beforeUpload(uploadedFile)
+          if (result && result instanceof Promise) {
+            result
+              .then((processedFile) => {
+                if (processedFile instanceof File) {
+                  postFile(processedFile)
+                } else {
+                  throw new Error(
+                    'beforeUpload Promise should return File Object',
+                  )
+                }
+              })
+              .catch((e) => {
+                console.error(e)
+              })
+          } else if (result) {
+            postFile(uploadedFile)
+          }
+        } else {
+          postFile(uploadedFile)
+        }
       }
     }
 
