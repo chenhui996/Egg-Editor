@@ -3,6 +3,7 @@
     <uploader
       action="http://localhost:3087/users"
       multiple="true"
+      withCookie="true"
       :beforeUpload="beforeUploadFunc"
       :onProgress="onProgressFunc"
       :onSuccess="onSuccessFunc"
@@ -12,6 +13,7 @@
       :accept="accept"
       :headers="headers"
       :data="fileData"
+      :name="fileName"
     ></uploader>
     <a-layout :style="{background: '#fff'}">
       <!-- header -->

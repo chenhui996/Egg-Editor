@@ -92,6 +92,10 @@ export default defineComponent({
       type: String,
       default: '',
     },
+    withCookie: {
+      type: Boolean,
+      default: false,
+    },
     headers: {
       type: Object,
       default: () => ({}),
@@ -213,6 +217,7 @@ export default defineComponent({
             ...props.headers,
             'Content-Type': 'multipart/form-data',
           },
+          withCredentials: props.withCookie,
           cancelToken: new CancelToken(function executor(c) {
             // executor 函数接收一个 cancel 函数作为参数
             cancel = c
