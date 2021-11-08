@@ -4,6 +4,7 @@
       <slot v-if="isUploading" name="loading">
         <button disabled>正在上传</button>
       </slot>
+      <!-- custom loaded -->
       <slot
         v-else-if="lastFileData && lastFileData.loaded"
         name="uploaded"
@@ -19,6 +20,8 @@
     <input
       ref="fileInput"
       type="file"
+      :multiple="multiple"
+      :accept="accept"
       :style="{display: 'none'}"
       @change="handleFileChange"
     />
@@ -29,11 +32,13 @@
         :key="file.uid"
       >
         <span v-if="file.status === 'loading'" class="file-icon"
-          ><LoadingOutlined
-        /></span>
-        <span v-else class="file-icon"><FileOutlined /></span>
+          ><LoadingOutlined />{{ file.percent || 0 }} %</span
+        >
+        <span v-else class="file-icon"
+          ><FileOutlined />{{ file.percent }} %</span
+        >
         <span class="filename">{{ file.name }}</span>
-        <button class="delete-icon" @click="removeFile(file.uid)">
+        <button class="delete-icon" @click="removeFile(file)">
           <DeleteOutlined />
         </button>
       </li>
@@ -62,6 +67,7 @@ export interface UploadFile {
   status: UploadStatus;
   raw: File;
   resp?: any;
+  percent?: number;
 }
 
 export default defineComponent({
@@ -75,8 +81,42 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    multiple: {
+      type: Boolean,
+      default: false,
+    },
+    accept: {
+      type: String,
+      default: '',
+    },
+    headers: {
+      type: Object,
+      default: () => ({}),
+    },
     beforeUpload: {
       type: Function as PropType<CheckUpload>,
+    },
+    onProgress: {
+      type: Function as PropType<(percent: number, file: UploadFile) => void>,
+    },
+    onSuccess: {
+      type: Function as PropType<(resp: any, file: UploadFile) => void>,
+    },
+    onError: {
+      type: Function as PropType<(err: any, file: UploadFile) => void>,
+    },
+    onRemove: {
+      type: Function as PropType<(file: UploadFile) => void>,
+    },
+    onChange: {
+      type: Function as PropType<(file: UploadFile) => void>,
+    },
+    name: {
+      type: String,
+    },
+    data: {
+      type: Object,
+      default: () => ({}),
     },
   },
   setup(props) {
@@ -85,6 +125,10 @@ export default defineComponent({
     const isUploading = computed(() => {
       return uploadedFiles.value.some((file) => file.status === 'loading')
     })
+
+    const CancelToken = axios.CancelToken
+    let cancel: (message?: string) => void
+
     const lastFileData = computed(() => {
       const lastFile = last(uploadedFiles.value)
       if (lastFile) {
@@ -95,47 +139,120 @@ export default defineComponent({
       }
       return false
     })
+
     const triggerUpload = () => {
       if (fileInput.value) {
         fileInput.value.click()
       }
     }
 
-    const removeFile = (id: string) => {
+    const removeFile = (file: UploadFile) => {
       uploadedFiles.value = uploadedFiles.value.filter(
-        (file) => file.uid !== id,
+        (item) => item.uid !== file.uid,
       )
+
+      if (props.onRemove) {
+        props.onRemove(file)
+      }
+
+      if (props.onChange) {
+        props.onChange(file)
+      }
+    }
+
+    // update file list
+    const updateFileList = (
+      file: UploadFile,
+      percentObj: Partial<UploadFile>,
+    ) => {
+      uploadedFiles.value.forEach((item) => {
+        if (item.uid === file.uid) {
+          Object.assign(item, percentObj)
+          return item
+        }
+        return item
+      })
     }
 
     const postFile = (uploadedFile: File) => {
-      const formData = new FormData() // 默认文件实例
-      // 将内容塞进去
-      formData.append(uploadedFile.name, uploadedFile)
       const fileObj = reactive<UploadFile>({
         uid: uuidv4(),
         size: uploadedFile.size,
         name: uploadedFile.name,
         status: 'loading',
         raw: uploadedFile,
+        percent: 0,
       })
       uploadedFiles.value.push(fileObj)
+
+      const formData = new FormData()
+      formData.append(props.name || uploadedFile.name || 'file', uploadedFile)
+
+      if (props.data) {
+        Object.keys(props.data).forEach((key) => {
+          formData.append(key, props.data[key])
+        })
+      }
+
       // 发送 axios 请求
       axios
         .post(props.action, formData, {
           headers: {
-            'Content-Type': 'multipart/form-data', // 设置 axios 请求头，告诉后端 -> 咱发送的是文件
+            ...props.headers,
+            'Content-Type': 'multipart/form-data',
+          },
+          cancelToken: new CancelToken(function executor(c) {
+            // executor 函数接收一个 cancel 函数作为参数
+            cancel = c
+          }),
+          onUploadProgress: (e: ProgressEvent) => {
+            const shouldUploading = uploadedFiles.value.find(
+              (f) => f.uid === fileObj.uid,
+            )
+            if (shouldUploading) {
+              const percentage = Math.round((e.loaded * 100) / e.total) || 0
+              if (percentage < 100) {
+                updateFileList(fileObj, {
+                  percent: percentage,
+                  status: 'loading',
+                })
+                props.onProgress && props.onProgress(percentage, fileObj)
+              }
+            } else {
+              cancel()
+            }
           },
         })
         .then((resp) => {
           console.log('resp.data', resp.data)
           // 联动 fileStatus -> change status -> success
-          fileObj.status = 'success'
-          fileObj.resp = resp.data
+          // fileObj.status = 'success'
+          // fileObj.resp = resp.data
+          updateFileList(fileObj, {
+            percent: 100,
+            status: 'success',
+            resp: resp.data,
+          })
+
+          if (props.onSuccess) {
+            props.onSuccess(resp.data, fileObj)
+          }
+
+          if (props.onChange) {
+            props.onChange(fileObj)
+          }
         })
         .catch((error) => {
           // console.log(error)
           // 联动 fileStatus -> change status -> error
           fileObj.status = 'error'
+          if (props.onError) {
+            props.onError(error, fileObj)
+          }
+
+          if (props.onChange) {
+            props.onChange(fileObj)
+          }
         })
         .finally(() => {
           if (fileInput.value) {
@@ -146,31 +263,32 @@ export default defineComponent({
 
     // axios 请求
     const handleFileChange = (e: Event) => {
-      const target = e.target as HTMLInputElement
-      const files = target.files // 类数组
+      const files = (e.target as HTMLInputElement).files
       if (files) {
-        const uploadedFile = files[0]
-        if (props.beforeUpload) {
-          const result = props.beforeUpload(uploadedFile)
-          if (result && result instanceof Promise) {
-            result
-              .then((processedFile) => {
-                if (processedFile instanceof File) {
-                  postFile(processedFile)
-                } else {
-                  throw new Error(
-                    'beforeUpload Promise should return File Object',
-                  )
-                }
-              })
-              .catch((e) => {
-                console.error(e)
-              })
-          } else if (result) {
-            postFile(uploadedFile)
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i]
+          if (props.beforeUpload) {
+            const result = props.beforeUpload(file)
+            if (result && result instanceof Promise) {
+              result
+                .then((processedFile) => {
+                  if (processedFile instanceof File) {
+                    postFile(processedFile)
+                  } else {
+                    throw new Error(
+                      'beforeUpload Promise should return File Object',
+                    )
+                  }
+                })
+                .catch((e) => {
+                  console.error(e)
+                })
+            } else if (result) {
+              postFile(file)
+            }
+          } else {
+            postFile(file)
           }
-        } else {
-          postFile(uploadedFile)
         }
       }
     }
