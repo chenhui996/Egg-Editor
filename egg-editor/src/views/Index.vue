@@ -12,7 +12,6 @@
       :accept="accept"
       :headers="headers"
       :data="fileData"
-      :name="fileName"
     ></uploader>
     <a-layout :style="{background: '#fff'}">
       <!-- header -->
@@ -39,7 +38,7 @@ import {computed, defineComponent} from 'vue'
 import {useStore} from 'vuex'
 import UserProfile from '../components/UserProfile.vue'
 import {GlobalDataProps} from '../store/index'
-import Uploader from '../components/Uploader.vue'
+import Uploader, {UploadFile} from '../components/Uploader.vue'
 export default defineComponent({
   name: 'Index',
   components: {
@@ -66,28 +65,36 @@ export default defineComponent({
       return false
     }
 
-    const onProgressFunc = (percent: number, file: object) => {
-      console.log('life cycle -> on progress', percent, file)
+    const onProgressFunc = (
+      percent: number,
+      file: object,
+      fileList: UploadFile[],
+    ) => {
+      console.log('life cycle -> on progress', percent, file, fileList)
       return Promise.resolve()
     }
 
-    const onSuccessFunc = (response: object, file: object) => {
-      console.log('life cycle -> on success', response, file)
+    const onSuccessFunc = (
+      response: object,
+      file: object,
+      fileList: UploadFile[],
+    ) => {
+      console.log('life cycle -> on success', response, file, fileList)
       return Promise.resolve()
     }
 
-    const onErrorFunc = (err: object, file: object) => {
-      console.log('life cycle -> on error', err, file)
+    const onErrorFunc = (err: object, file: object, fileList: UploadFile[]) => {
+      console.log('life cycle -> on error', err, file, fileList)
       return Promise.resolve()
     }
 
-    const onRemoveFunc = (file: object) => {
-      console.log('life cycle -> on remove', file)
+    const onRemoveFunc = (file: object, fileList: UploadFile[]) => {
+      console.log('life cycle -> on remove', file, fileList)
       return Promise.resolve()
     }
 
-    const onChangeFunc = (file: object) => {
-      console.log('life cycle -> on change', file)
+    const onChangeFunc = (file: object, fileList: UploadFile[]) => {
+      console.log('life cycle -> on change', file, fileList)
       return Promise.resolve()
     }
 

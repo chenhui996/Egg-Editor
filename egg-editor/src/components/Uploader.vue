@@ -31,16 +31,19 @@
         v-for="file in uploadedFiles"
         :key="file.uid"
       >
-        <span v-if="file.status === 'loading'" class="file-icon"
-          ><LoadingOutlined />{{ file.percent || 0 }} %</span
-        >
-        <span v-else class="file-icon"
-          ><FileOutlined />{{ file.percent }} %</span
-        >
-        <span class="filename">{{ file.name }}</span>
-        <button class="delete-icon" @click="removeFile(file)">
-          <DeleteOutlined />
-        </button>
+        <div>
+          <span v-if="file.status === 'loading'" class="file-icon"
+            ><LoadingOutlined />{{ file.percent || 0 }} %</span
+          >
+          <span v-else class="file-icon"
+            ><FileOutlined />{{ file.percent }} %</span
+          >
+          <span class="filename">{{ file.name }}</span>
+          <button class="delete-icon" @click="removeFile(file)">
+            <DeleteOutlined />
+          </button>
+        </div>
+        <a-progress :percent="file.percent" />
       </li>
     </ul>
   </div>
@@ -97,19 +100,29 @@ export default defineComponent({
       type: Function as PropType<CheckUpload>,
     },
     onProgress: {
-      type: Function as PropType<(percent: number, file: UploadFile) => void>,
+      type: Function as PropType<
+        (percent: number, file: UploadFile, fileList: UploadFile[]) => void
+      >,
     },
     onSuccess: {
-      type: Function as PropType<(resp: any, file: UploadFile) => void>,
+      type: Function as PropType<
+        (resp: any, file: UploadFile, fileList: UploadFile[]) => void
+      >,
     },
     onError: {
-      type: Function as PropType<(err: any, file: UploadFile) => void>,
+      type: Function as PropType<
+        (err: any, file: UploadFile, fileList: UploadFile[]) => void
+      >,
     },
     onRemove: {
-      type: Function as PropType<(file: UploadFile) => void>,
+      type: Function as PropType<
+        (file: UploadFile, fileList: UploadFile[]) => void
+      >,
     },
     onChange: {
-      type: Function as PropType<(file: UploadFile) => void>,
+      type: Function as PropType<
+        (file: UploadFile, fileList: UploadFile[]) => void
+      >,
     },
     name: {
       type: String,
@@ -127,7 +140,6 @@ export default defineComponent({
     })
 
     const CancelToken = axios.CancelToken
-    let cancel: (message?: string) => void
 
     const lastFileData = computed(() => {
       const lastFile = last(uploadedFiles.value)
@@ -152,11 +164,11 @@ export default defineComponent({
       )
 
       if (props.onRemove) {
-        props.onRemove(file)
+        props.onRemove(file, uploadedFiles.value)
       }
 
       if (props.onChange) {
-        props.onChange(file)
+        props.onChange(file, uploadedFiles.value)
       }
     }
 
@@ -174,7 +186,7 @@ export default defineComponent({
       })
     }
 
-    const postFile = (uploadedFile: File) => {
+    const postFile = (uploadedFile: File, cancel: any) => {
       const fileObj = reactive<UploadFile>({
         uid: uuidv4(),
         size: uploadedFile.size,
@@ -206,17 +218,18 @@ export default defineComponent({
             cancel = c
           }),
           onUploadProgress: (e: ProgressEvent) => {
+            const percentage = Math.round((e.loaded * 100) / e.total) || 0
             const shouldUploading = uploadedFiles.value.find(
               (f) => f.uid === fileObj.uid,
             )
             if (shouldUploading) {
-              const percentage = Math.round((e.loaded * 100) / e.total) || 0
               if (percentage < 100) {
                 updateFileList(fileObj, {
                   percent: percentage,
                   status: 'loading',
                 })
-                props.onProgress && props.onProgress(percentage, fileObj)
+                props.onProgress &&
+                  props.onProgress(percentage, fileObj, uploadedFiles.value)
               }
             } else {
               cancel()
@@ -235,11 +248,11 @@ export default defineComponent({
           })
 
           if (props.onSuccess) {
-            props.onSuccess(resp.data, fileObj)
+            props.onSuccess(resp.data, fileObj, uploadedFiles.value)
           }
 
           if (props.onChange) {
-            props.onChange(fileObj)
+            props.onChange(fileObj, uploadedFiles.value)
           }
         })
         .catch((error) => {
@@ -247,11 +260,11 @@ export default defineComponent({
           // 联动 fileStatus -> change status -> error
           fileObj.status = 'error'
           if (props.onError) {
-            props.onError(error, fileObj)
+            props.onError(error, fileObj, uploadedFiles.value)
           }
 
           if (props.onChange) {
-            props.onChange(fileObj)
+            props.onChange(fileObj, uploadedFiles.value)
           }
         })
         .finally(() => {
@@ -265,15 +278,19 @@ export default defineComponent({
     const handleFileChange = (e: Event) => {
       const files = (e.target as HTMLInputElement).files
       if (files) {
+        // 拿着列表循环多个 post 请求
         for (let i = 0; i < files.length; i++) {
           const file = files[i]
+          let cancel: any
           if (props.beforeUpload) {
             const result = props.beforeUpload(file)
+
             if (result && result instanceof Promise) {
               result
                 .then((processedFile) => {
                   if (processedFile instanceof File) {
-                    postFile(processedFile)
+                    // 打单个 post 接口
+                    postFile(processedFile, cancel)
                   } else {
                     throw new Error(
                       'beforeUpload Promise should return File Object',
@@ -284,10 +301,10 @@ export default defineComponent({
                   console.error(e)
                 })
             } else if (result) {
-              postFile(file)
+              postFile(file, cancel)
             }
           } else {
-            postFile(file)
+            postFile(file, cancel)
           }
         }
       }
